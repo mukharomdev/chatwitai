@@ -4,7 +4,7 @@ require("dotenv").config()
 
 const actions = {
 	confirm_order(contextmap){
-		return {context_map:{...contextmap,asking:"asking_order"}}
+		return {context_map:{...contextmap,ask_order:"ask_order"}}
 	}
 }
 

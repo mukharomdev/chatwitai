@@ -1,9 +1,17 @@
 const {Wit,log} = require("node-wit")
+const highlight = require("cli-highlight").highlight
 require("dotenv").config()
+
+const actions = {
+	confirm_order(contextmap){
+		return {context_map:{...contextmap,asking:"asking_order"}}
+	}
+}
 
 const config = {
 	accessToken : process.env.WITAI_CLIENT_ACCESS_TOKEN,
 	logger: new log.Logger(log.DEBUG), // optional
+	actions
 }
 
 
@@ -25,12 +33,14 @@ const messageText = "hi"
 const ctxMap	  = {
 	ask_order : "ask_order"
 }
-const sessionId = ""
+const sessionId = "123"
 const client = WitClient(Wit,config)
 
 async function App(){
-	const resp = await client.event(messageText,ctxMap)
-	console.log(resp)
+	const resp = await client.event(sessionId,messageText,ctxMap)
+	const jsonString = JSON.stringify(resp, null, 2);
+	console.log(highlight(jsonString, { language: 'json', theme: 'default' }))
+	
 }
 
 App()

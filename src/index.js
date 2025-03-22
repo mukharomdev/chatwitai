@@ -10,7 +10,7 @@ const actions = {
 
 const config = {
 	accessToken : process.env.WITAI_CLIENT_ACCESS_TOKEN,
-	logger: new log.Logger(log.DEBUG), // optional
+	//logger: new log.Logger(log.DEBUG), // optional
 	actions
 }
 
@@ -36,11 +36,24 @@ const ctxMap	  = {
 const sessionId = "123"
 const client = WitClient(Wit,config)
 
+function handleContext(ctx){
+    if (typeof ctx != "object"){
+        throw new Error("argumen rsp harus object")
+    }
+    return {context_map : {...ctx}}
+    
+}
+
 async function App(){
-	const resp = await client.event(sessionId,messageText,ctxMap)
+    let context = {}
+    try{
+	const resp = await client.message(messageText,context)
+	context = handleContext(resp)
 	const jsonString = JSON.stringify(resp, null, 2);
 	console.log(highlight(jsonString, { language: 'json', theme: 'default' }))
-	
+    } catch(err){
+        throw new Error("error :",err)
+    }
 }
 
 App()

@@ -2,9 +2,15 @@ const {Wit,log} = require("node-wit")
 const highlight = require("cli-highlight").highlight
 require("dotenv").config()
 
+const messageText = "hi"
+const ctxMap	  = {
+	ask_order : "ask_order"
+}
+const sessionId = "123"
+
 const actions = {
 	confirm_order(contextmap){
-		return {context_map:{...contextmap,ask_order:"ask_order"}}
+		return {context_map:{...contextmap}}
 	}
 }
 
@@ -29,30 +35,40 @@ function WitClient(wit,config){
 	return clientWit
 }
 
-const messageText = "hi"
-const ctxMap	  = {
-	ask_order : "ask_order"
-}
-const sessionId = "123"
+
 const client = WitClient(Wit,config)
 
 function handleContext(ctx){
     if (typeof ctx != "object"){
         throw new Error("argumen rsp harus object")
     }
-    return {context_map : {...ctx}}
+    const val = Object.entries(ctx.entities)
+	const ctxVal = val[0][1][0].name
+	const key = ctx.intents[0].name
+    const newCtx= {
+    	[key]:ctxVal
+    }
+    
+    return {context_map :  newCtx}
     
 }
 
 async function App(){
-    let context = {}
+   
     try{
+    let context = {}
 	const resp = await client.message(messageText,context)
 	context = handleContext(resp)
+	console.log(context)
 	const jsonString = JSON.stringify(resp, null, 2);
+	
+
+	
+
+
 	console.log(highlight(jsonString, { language: 'json', theme: 'default' }))
     } catch(err){
-        throw new Error("error :",err)
+        console.log("error :",err)
     }
 }
 

@@ -2,11 +2,8 @@ const {Wit,log} = require("node-wit")
 const highlight = require("cli-highlight").highlight
 require("dotenv").config()
 
-const messageText = "hi"
-const ctxMap	  = {
-	ask_order : "ask_order"
-}
-const sessionId = "123"
+const messageText = "saya mesen mie goreng"
+
 
 const actions = {
 	confirm_order(contextmap){
@@ -49,24 +46,49 @@ function handleContext(ctx){
     	[key]:ctxVal
     }
     
-    return {context_map :  newCtx}
+    return {context_map : { ...newCtx}}
     
 }
 
 async function App(){
-   
-    try{
     let context = {}
-	const resp = await client.message(messageText,context)
-	context = handleContext(resp)
-	console.log(context)
-	const jsonString = JSON.stringify(resp, null, 2);
+    let final   = false
+    let sessionId = ""
+    let respMsg = ""
+    let messageText2 = ""
+    try {
+    if(!sessionId){
+    	const resp = await client.message(messageText,context)
+    	respMsg  = resp
+    	messageText2 = messageText 
+
+    }else{
+    	const resp2 = await client.message(messageText2,context)
+    	respMsg = resp2
+
+    }
+	
+	context = handleContext(respMsg)
+	if (context || !final){
+		console.log("========== event ==================================")
+		const respEvt = await client.event(sessionId,messageText,context)
+		sessionId++
+		context = {...context}
+		respEvt.context_map = context.context_map
+		respEvt.is_final = final
+
+		const jsonStringEvt = JSON.stringify(respEvt, null, 2);
+		console.log(highlight(jsonStringEvt, { language: 'json', theme: 'default' }))
+		console.log(sessionId)
+
+	}
+	console.log("==================== message ==============================")
+	console.log(JSON.stringify(context,null,2))
+	const jsonStringMsg = JSON.stringify(respMsg, null, 2);
+	console.log(highlight(jsonStringMsg, { language: 'json', theme: 'default' }))
+
 	
 
-	
-
-
-	console.log(highlight(jsonString, { language: 'json', theme: 'default' }))
     } catch(err){
         console.log("error :",err)
     }

@@ -1,0 +1,6 @@
+{ 
+  "quiet": true,
+  "events": {
+    "restart": "clear && echo 'App restarted'"
+  }
+}
